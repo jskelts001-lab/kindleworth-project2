@@ -10,48 +10,44 @@
   "weeks": [
     {
       "weekStart": "2025-04-28",
-      "weekEnd": "2025-05-04",
-      "days": ["Mon 28 Apr", "Tue 29 Apr", "Wed 30 Apr", "Thu 1 May", "Fri 2 May", "Sat 3 May", "Sun 4 May"],
+      "weekEnd": "2025-05-02",
+      "days": ["Mon 28 Apr", "Tue 29 Apr", "Wed 30 Apr", "Thu 1 May", "Fri 2 May"],
       "responses": {
-        "charlie": [3, 3, 2, 3, 2, 2, 3],
-        "jasper":  [2, 2, 1, 2, 3, 2, 2],
-        "jack":    [4, 3, 3, 4, 3, 3, 3],
-        "zav":     [2, 3, 2, 3, 2, 2, 3],
-        "oldman":  [3, 4, 3, 3, 4, 3, 3]
+        "charlie": [3, 3, 2, 3, 2],
+        "jasper":  [2, 2, 1, 2, 3],
+        "jack":    [4, 3, 3, 4, 3],
+        "zav":     [2, 3, 2, 3, 2],
+        "oldman":  [3, 4, 3, 3, 4]
       }
     },
     {
       "weekStart": "2025-05-05",
-      "weekEnd": "2025-05-11",
-      "days": ["Mon 5 May", "Tue 6 May", "Wed 7 May", "Thu 8 May", "Fri 9 May", "Sat 10 May", "Sun 11 May"],
+      "weekEnd": "2025-05-09",
+      "days": ["Mon 5 May", "Tue 6 May", "Wed 7 May", "Thu 8 May", "Fri 9 May"],
       "responses": {
-        "charlie": [2, 3, 3, 4, 2, 1, 2],
-        "jasper":  [1, 2, 2, 3, 2, 2, 1],
-        "jack":    [3, 3, 4, 4, 3, 2, 2],
-        "zav":     [2, 2, 3, 3, 2, 1, 2],
-        "oldman":  [4, 4, 3, 3, 3, 2, 2]
+        "charlie": [2, 3, 3, 4, 2],
+        "jasper":  [1, 2, 2, 3, 2],
+        "jack":    [3, 3, 4, 4, 3],
+        "oldman":  [4, 4, 3, 3, 3]
       }
     },
     {
       "weekStart": "2025-05-12",
-      "weekEnd": "2025-05-18",
-      "days": ["Mon 12 May", "Tue 13 May", "Wed 14 May", "Thu 15 May", "Fri 16 May", "Sat 17 May", "Sun 18 May"],
+      "weekEnd": "2025-05-16",
+      "days": ["Mon 12 May", "Tue 13 May", "Wed 14 May", "Thu 15 May", "Fri 16 May"],
       "responses": {}
     }
   ],
   "activeWeekIndex": 1,
-  "tasks": [
-    { "id": 1, "title": "Research for history project", "status": "In Progress", "due": "6 May" },
-    { "id": 2, "title": "Maths homework", "status": "To Do", "due": "7 May" },
-    { "id": 3, "title": "Plan weekend meet-up", "status": "To Do", "due": "8 May" },
-    { "id": 4, "title": "Drama script rehearsal", "status": "In Progress", "due": "9 May" },
-    { "id": 5, "title": "Buy props", "status": "To Do", "due": "10 May" },
-    { "id": 6, "title": "Script final edits", "status": "To Do", "due": "11 May" }
-  ],
+  "busyness": {
+    "week":  { "charlie": 2.8, "jasper": 2.0, "jack": 3.4, "oldman": 3.4 },
+    "month": { "charlie": 2.6, "jasper": 2.0, "jack": 2.9, "zav": 2.3, "oldman": 3.1 },
+    "year":  { "charlie": 2.7, "jasper": 2.1, "jack": 3.0, "zav": 2.5, "oldman": 3.2 }
+  },
   "upcomingWeeks": [
-    { "label": "12 May – 18 May", "opensIn": "Poll opens in 2 days" },
-    { "label": "19 May – 25 May", "opensIn": "Poll opens in 9 days" },
-    { "label": "26 May – 1 June", "opensIn": "Poll opens in 16 days" }
+    { "label": "12 May – 16 May", "opensIn": "Poll opens in 2 days", "weekStart": "2025-05-12", "weekEnd": "2025-05-16" },
+    { "label": "19 May – 23 May", "opensIn": "Poll opens in 9 days", "weekStart": "2025-05-19", "weekEnd": "2025-05-23" },
+    { "label": "26 May – 30 May", "opensIn": "Poll opens in 16 days", "weekStart": "2025-05-26", "weekEnd": "2025-05-30" }
   ],
   "scoreLabels": { "1": "Very Busy", "2": "Busy", "3": "Moderate", "4": "Free", "5": "Very Free" }
 }

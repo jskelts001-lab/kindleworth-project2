@@ -23,47 +23,47 @@ const FALLBACK_DATA = {
   ],
   "weeks": [
     {
-      "weekStart": "2025-04-28", "weekEnd": "2025-05-04",
-      "days": ["Mon 28 Apr", "Tue 29 Apr", "Wed 30 Apr", "Thu 1 May", "Fri 2 May", "Sat 3 May", "Sun 4 May"],
+      "weekStart": "2025-04-28", "weekEnd": "2025-05-02",
+      "days": ["Mon 28 Apr", "Tue 29 Apr", "Wed 30 Apr", "Thu 1 May", "Fri 2 May"],
       "responses": {
-        "charlie": [3, 3, 2, 3, 2, 2, 3], "jasper": [2, 2, 1, 2, 3, 2, 2],
-        "jack": [4, 3, 3, 4, 3, 3, 3], "zav": [2, 3, 2, 3, 2, 2, 3], "oldman": [3, 4, 3, 3, 4, 3, 3]
+        "charlie": [3, 3, 2, 3, 2], "jasper": [2, 2, 1, 2, 3],
+        "jack": [4, 3, 3, 4, 3], "zav": [2, 3, 2, 3, 2], "oldman": [3, 4, 3, 3, 4]
       }
     },
     {
-      "weekStart": "2025-05-05", "weekEnd": "2025-05-11",
-      "days": ["Mon 5 May", "Tue 6 May", "Wed 7 May", "Thu 8 May", "Fri 9 May", "Sat 10 May", "Sun 11 May"],
+      "weekStart": "2025-05-05", "weekEnd": "2025-05-09",
+      "days": ["Mon 5 May", "Tue 6 May", "Wed 7 May", "Thu 8 May", "Fri 9 May"],
       "responses": {
-        "charlie": [2, 3, 3, 4, 2, 1, 2], "jasper": [1, 2, 2, 3, 2, 2, 1],
-        "jack": [3, 3, 4, 4, 3, 2, 2], "zav": [2, 2, 3, 3, 2, 1, 2], "oldman": [4, 4, 3, 3, 3, 2, 2]
+        "charlie": [2, 3, 3, 4, 2], "jasper": [1, 2, 2, 3, 2],
+        "jack": [3, 3, 4, 4, 3], "oldman": [4, 4, 3, 3, 3]
       }
     },
     {
-      "weekStart": "2025-05-12", "weekEnd": "2025-05-18",
-      "days": ["Mon 12 May", "Tue 13 May", "Wed 14 May", "Thu 15 May", "Fri 16 May", "Sat 17 May", "Sun 18 May"],
+      "weekStart": "2025-05-12", "weekEnd": "2025-05-16",
+      "days": ["Mon 12 May", "Tue 13 May", "Wed 14 May", "Thu 15 May", "Fri 16 May"],
       "responses": {}
     }
   ],
   "activeWeekIndex": 1,
-  "tasks": [
-    { "id": 1, "title": "Research for history project", "status": "In Progress", "due": "6 May" },
-    { "id": 2, "title": "Maths homework", "status": "To Do", "due": "7 May" },
-    { "id": 3, "title": "Plan weekend meet-up", "status": "To Do", "due": "8 May" },
-    { "id": 4, "title": "Drama script rehearsal", "status": "In Progress", "due": "9 May" },
-    { "id": 5, "title": "Buy props", "status": "To Do", "due": "10 May" },
-    { "id": 6, "title": "Script final edits", "status": "To Do", "due": "11 May" }
-  ],
+  "busyness": {
+    "week":  { "charlie": 2.8, "jasper": 2.0, "jack": 3.4, "oldman": 3.4 },
+    "month": { "charlie": 2.6, "jasper": 2.0, "jack": 2.9, "zav": 2.3, "oldman": 3.1 },
+    "year":  { "charlie": 2.7, "jasper": 2.1, "jack": 3.0, "zav": 2.5, "oldman": 3.2 }
+  },
   "upcomingWeeks": [
-    { "label": "12 May – 18 May", "opensIn": "Poll opens in 2 days" },
-    { "label": "19 May – 25 May", "opensIn": "Poll opens in 9 days" },
-    { "label": "26 May – 1 June", "opensIn": "Poll opens in 16 days" }
+    { "label": "12 May – 16 May", "opensIn": "Poll opens in 2 days", "weekStart": "2025-05-12", "weekEnd": "2025-05-16" },
+    { "label": "19 May – 23 May", "opensIn": "Poll opens in 9 days", "weekStart": "2025-05-19", "weekEnd": "2025-05-23" },
+    { "label": "26 May – 30 May", "opensIn": "Poll opens in 16 days", "weekStart": "2025-05-26", "weekEnd": "2025-05-30" }
   ],
   "scoreLabels": { "1": "Very Busy", "2": "Busy", "3": "Moderate", "4": "Free", "5": "Very Free" }
 };
 
 let DATA = null;
 let weekIndex = 0;
-let taskFilter = "All";
+let busyPeriod = "month";
+let currentView = "overview";
+let calendarYear = 2025;
+let calendarMonth = 4; // 0-indexed, overwritten in init() from the active week
 
 async function loadData() {
   try {
@@ -206,46 +206,86 @@ function updateAvailAverage() {
   document.getElementById("availAverage").textContent = `${a.toFixed(1)} (${scoreLabel(a)})`;
 }
 
-/* ---------------- Tasks ---------------- */
+/* ---------------- Busiest team members ---------------- */
 
-function renderTasks() {
-  const list = document.getElementById("taskList");
-  const filtered = DATA.tasks.filter(t => taskFilter === "All" || t.status === taskFilter);
+function renderBusyness() {
+  const list = document.getElementById("busyList");
+  const stats = DATA.busyness[busyPeriod];
 
-  list.innerHTML = filtered.map(t => {
-    const badgeClass = t.status === "Done" ? "done" : t.status === "In Progress" ? "progress" : "todo";
-    return `<li class="task-item">
-      <button class="task-check" data-id="${t.id}" title="Mark done"></button>
-      <span class="task-title">${t.title}</span>
-      <span class="task-badge ${badgeClass}">${t.status}</span>
-      <span class="task-due">${t.due}</span>
-      <button class="task-menu" title="More">
-        <svg class="icon small" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.2" fill="currentColor" stroke="none"/></svg>
-      </button>
+  const ranked = DATA.members
+    .map(m => ({ member: m, score: stats[m.id] }))
+    .filter(r => typeof r.score === "number")
+    .sort((a, b) => a.score - b.score); // lowest average = busiest, shown first
+
+  list.innerHTML = ranked.map((r, i) => {
+    const m = r.member;
+    const bucket = Math.max(1, Math.min(5, Math.round(r.score)));
+    const widthPct = (r.score / 5) * 100;
+    const tag = i === 0
+      ? `<span class="busy-tag busiest">Busiest</span>`
+      : i === ranked.length - 1
+        ? `<span class="busy-tag freest">Most Available</span>`
+        : "";
+    return `<li class="busy-item">
+      <span class="busy-rank">${i + 1}</span>
+      <span class="busy-member"><span class="avatar" style="background:${m.color}">${m.initials}</span>${m.name}</span>
+      <span class="busy-bar-track"><span class="busy-bar-fill score-${bucket}" style="width:${widthPct}%;background:var(--score-${bucket})"></span></span>
+      <span class="busy-score">${r.score.toFixed(1)}</span>
+      ${tag}
     </li>`;
   }).join("");
+}
 
-  if (filtered.length === 0) {
-    list.innerHTML = `<li class="task-item" style="color:var(--text-faint);justify-content:center;">No tasks in this view</li>`;
+document.getElementById("busyTabs").addEventListener("click", e => {
+  const tab = e.target.closest(".tab");
+  if (!tab) return;
+  document.querySelectorAll("#busyTabs .tab").forEach(t => t.classList.remove("active"));
+  tab.classList.add("active");
+  busyPeriod = tab.dataset.period;
+  renderBusyness();
+});
+
+/* ---------------- Awaiting responses ---------------- */
+
+function getAwaitingMembers(week) {
+  return DATA.members.filter(m => !week.responses[m.id]);
+}
+
+function renderAwaiting() {
+  const week = DATA.weeks[DATA.activeWeekIndex];
+  const list = document.getElementById("awaitingList");
+  const subtitle = document.getElementById("awaitingSubtitle");
+  const awaiting = getAwaitingMembers(week);
+
+  subtitle.textContent = awaiting.length
+    ? "Haven't submitted this week's poll yet"
+    : "Everyone has submitted this week's poll";
+
+  if (awaiting.length === 0) {
+    list.innerHTML = `<li class="awaiting-empty">
+      <svg class="icon small" viewBox="0 0 24 24"><path d="M4 12.5 9 17l11-11"/></svg>
+      All caught up
+    </li>`;
+    return;
   }
 
-  list.querySelectorAll(".task-check").forEach(btn => {
+  list.innerHTML = awaiting.map(m => `
+    <li class="awaiting-item">
+      <span class="avatar" style="background:${m.color}">${m.initials}</span>
+      <div class="awaiting-info">
+        <span class="awaiting-name">${m.name}</span>
+        <span class="awaiting-phone">${m.phone}</span>
+      </div>
+      <button class="awaiting-remind" data-id="${m.id}">Remind</button>
+    </li>`).join("");
+
+  list.querySelectorAll(".awaiting-remind").forEach(btn => {
     btn.addEventListener("click", () => {
-      const task = DATA.tasks.find(t => t.id === Number(btn.dataset.id));
-      task.status = task.status === "Done" ? "To Do" : "Done";
-      renderTasks();
+      const m = member(btn.dataset.id);
+      showToast(`WhatsApp reminder to ${m.name} — coming soon once Twilio is wired up.`);
     });
   });
 }
-
-document.getElementById("taskTabs").addEventListener("click", e => {
-  const tab = e.target.closest(".tab");
-  if (!tab) return;
-  document.querySelectorAll("#taskTabs .tab").forEach(t => t.classList.remove("active"));
-  tab.classList.add("active");
-  taskFilter = tab.dataset.filter;
-  renderTasks();
-});
 
 /* ---------------- Upcoming weeks ---------------- */
 
@@ -256,6 +296,208 @@ function renderUpcoming() {
       <span class="upcoming-label">${w.label}</span>
       <span class="upcoming-sub">${w.opensIn}</span>
     </li>`).join("");
+}
+
+/* ---------------- Views ---------------- */
+
+const VIEW_COPY = {
+  overview: ["Welcome back, Charlie", "Here's your team availability overview."],
+  polls: ["All Polls", "Every weekly poll — past, current and upcoming."],
+  calendar: ["Calendar", "Poll weeks at a glance."],
+  members: ["Team Members", "Everyone included in the weekly poll."]
+};
+
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll("#mainNav .nav-item").forEach(a => {
+    a.classList.toggle("active", a.dataset.nav === view);
+  });
+  document.querySelectorAll(".view").forEach(v => {
+    v.classList.toggle("active", v.dataset.view === view);
+  });
+  document.getElementById("weekPicker").style.display = view === "overview" ? "flex" : "none";
+
+  const [title, subtitle] = VIEW_COPY[view] || VIEW_COPY.overview;
+  document.getElementById("topbarTitle").textContent = title;
+  document.getElementById("topbarSubtitle").textContent = subtitle;
+
+  if (view === "polls") renderPolls();
+  if (view === "calendar") renderCalendar();
+  if (view === "members") renderMembers();
+}
+
+document.getElementById("mainNav").addEventListener("click", e => {
+  const a = e.target.closest(".nav-item");
+  if (!a) return;
+  e.preventDefault();
+  switchView(a.dataset.nav);
+});
+
+function jumpToWeek(index) {
+  weekIndex = index;
+  renderPollTable();
+  renderAvailability();
+  switchView("overview");
+}
+
+/* ---------------- Polls view ---------------- */
+
+function pollStatus(index) {
+  if (index < DATA.activeWeekIndex) return "closed";
+  if (index === DATA.activeWeekIndex) return "open";
+  return "upcoming";
+}
+
+const POLL_BADGE = {
+  open: ["badge-open", "Open"],
+  closed: ["badge-closed", "Closed"],
+  upcoming: ["badge-upcoming", "Upcoming"]
+};
+
+function renderPolls() {
+  const list = document.getElementById("pollsList");
+  const total = DATA.members.length;
+
+  const rows = DATA.weeks.map((w, i) => {
+    const status = pollStatus(i);
+    const [badgeClass, badgeLabel] = POLL_BADGE[status];
+    const responded = Object.keys(w.responses || {}).length;
+    const allScores = Object.values(w.responses || {}).flat();
+    const avgAll = allScores.length ? avg(allScores) : null;
+    const awaiting = status === "open" ? getAwaitingMembers(w) : [];
+
+    return `<li class="poll-row">
+      <span class="poll-dates">${formatWeekLabel(w)}</span>
+      <span class="badge ${badgeClass}">${badgeLabel}</span>
+      <span class="poll-meta">
+        <span>${responded}/${total} responded</span>
+        <span class="avg">${avgAll !== null ? "Avg " + avgAll.toFixed(1) : "No responses yet"}</span>
+        ${awaiting.length ? `<span>Awaiting: ${awaiting.map(m => m.name).join(", ")}</span>` : ""}
+      </span>
+      ${responded > 0 ? `<button class="btn-secondary" data-week-index="${i}">View results</button>` : ""}
+    </li>`;
+  }).join("");
+
+  const scheduledRows = DATA.upcomingWeeks.map(w => `
+    <li class="poll-row">
+      <span class="poll-dates">${w.label}</span>
+      <span class="badge badge-scheduled">Scheduled</span>
+      <span class="poll-meta"><span>${w.opensIn}</span></span>
+    </li>`).join("");
+
+  list.innerHTML = rows + scheduledRows;
+
+  list.querySelectorAll("button[data-week-index]").forEach(btn => {
+    btn.addEventListener("click", () => jumpToWeek(Number(btn.dataset.weekIndex)));
+  });
+}
+
+/* ---------------- Calendar view ---------------- */
+
+function dateInRange(d, startStr, endStr) {
+  const t = d.getTime();
+  return t >= new Date(startStr).getTime() && t <= new Date(endStr).getTime();
+}
+
+function getDateInfo(d) {
+  const dayOfWeek = d.getDay(); // 0 = Sunday, 6 = Saturday
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
+    return { status: "weekend", weekIndex: null, avgScore: null };
+  }
+
+  for (let i = 0; i < DATA.weeks.length; i++) {
+    const w = DATA.weeks[i];
+    if (dateInRange(d, w.weekStart, w.weekEnd)) {
+      // which day of this poll week does `d` fall on, so we can average
+      // every member's score for that specific day (not the whole week)
+      const dayIndex = Math.round((d - new Date(w.weekStart)) / 86400000);
+      const dayScores = DATA.members
+        .map(m => w.responses[m.id] ? w.responses[m.id][dayIndex] : undefined)
+        .filter(s => typeof s === "number");
+      const avgScore = dayScores.length ? avg(dayScores) : null;
+      return { status: pollStatus(i), weekIndex: i, avgScore };
+    }
+  }
+  for (const w of DATA.upcomingWeeks) {
+    if (w.weekStart && dateInRange(d, w.weekStart, w.weekEnd)) {
+      return { status: "scheduled", weekIndex: null, avgScore: null };
+    }
+  }
+  return null;
+}
+
+function renderCalendar() {
+  const grid = document.getElementById("calendarGrid");
+  const label = document.getElementById("calendarMonthLabel");
+  const first = new Date(calendarYear, calendarMonth, 1);
+  const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+  const offset = (first.getDay() + 6) % 7; // Monday-start
+
+  label.textContent = first.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+
+  let cells = "";
+  for (let i = 0; i < offset; i++) cells += `<div class="calendar-cell blank"></div>`;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const info = getDateInfo(new Date(calendarYear, calendarMonth, day));
+    const statusClass = info ? info.status : "";
+    const clickable = info && info.weekIndex !== null && info.weekIndex !== undefined;
+    const bucket = info && info.avgScore !== null ? Math.max(1, Math.min(5, Math.round(info.avgScore))) : null;
+    const marker = bucket !== null
+      ? `<span class="score-pill score-${bucket}" title="Team average this day">${info.avgScore.toFixed(1)}</span>`
+      : info && info.status === "weekend"
+        ? `<span class="cal-weekend-label">Closed</span>`
+        : info ? `<span class="cal-dot"></span>` : "";
+    cells += `<div class="calendar-cell ${statusClass}" ${clickable ? `data-week-index="${info.weekIndex}"` : ""}>
+      <span class="cal-day-num">${day}</span>
+      ${marker}
+    </div>`;
+  }
+  grid.innerHTML = cells;
+
+  grid.querySelectorAll(".calendar-cell[data-week-index]").forEach(cell => {
+    cell.addEventListener("click", () => jumpToWeek(Number(cell.dataset.weekIndex)));
+  });
+}
+
+document.getElementById("prevMonth").addEventListener("click", () => {
+  calendarMonth--;
+  if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+  renderCalendar();
+});
+document.getElementById("nextMonth").addEventListener("click", () => {
+  calendarMonth++;
+  if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+  renderCalendar();
+});
+
+document.getElementById("viewCalendarBtn").addEventListener("click", () => switchView("calendar"));
+
+/* ---------------- Members view ---------------- */
+
+function renderMembers() {
+  const grid = document.getElementById("membersGrid");
+  const currentWeek = DATA.weeks[DATA.activeWeekIndex];
+
+  grid.innerHTML = DATA.members.map(m => {
+    const scores = currentWeek.responses[m.id];
+    const a = scores ? avg(scores) : null;
+    const bucket = a !== null ? Math.max(1, Math.min(5, Math.round(a))) : null;
+    return `<div class="member-card">
+      <div class="member-card-top">
+        <span class="avatar" style="background:${m.color}">${m.initials}</span>
+        <div>
+          <div class="member-card-name">${m.name}</div>
+          <div class="member-card-phone">${m.phone}</div>
+        </div>
+      </div>
+      <div class="member-card-status">
+        <span>This week</span>
+        ${a !== null
+          ? `<span class="score-pill score-${bucket}" style="margin:0;">${a.toFixed(1)}</span>`
+          : `<span class="score-pill empty" style="margin:0;">–</span>`}
+      </div>
+    </div>`;
+  }).join("");
 }
 
 /* ---------------- Week navigation + misc ---------------- */
@@ -285,8 +527,14 @@ function showToast(msg) {
 (async function init() {
   DATA = await loadData();
   weekIndex = DATA.activeWeekIndex ?? 1;
+
+  const anchor = new Date(DATA.weeks[DATA.activeWeekIndex].weekStart);
+  calendarYear = anchor.getFullYear();
+  calendarMonth = anchor.getMonth();
+
   renderPollTable();
   renderAvailability();
-  renderTasks();
+  renderBusyness();
+  renderAwaiting();
   renderUpcoming();
 })();

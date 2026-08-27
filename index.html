@@ -19,7 +19,7 @@
       <span class="brand-name">Kindleworth</span>
     </div>
 
-    <nav class="nav">
+    <nav class="nav" id="mainNav">
       <a class="nav-item active" href="#" data-nav="overview">
         <svg class="icon" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
         Overview
@@ -28,10 +28,6 @@
         <svg class="icon" viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M11 20V4"/><path d="M18 20v-7"/></svg>
         Polls
       </a>
-      <a class="nav-item" href="#" data-nav="tasks">
-        <svg class="icon" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="m8 12 2.5 2.5L16 9"/></svg>
-        Tasks
-      </a>
       <a class="nav-item" href="#" data-nav="calendar">
         <svg class="icon" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>
         Calendar
@@ -39,10 +35,6 @@
       <a class="nav-item" href="#" data-nav="members">
         <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.8 19c.7-3.2 3.3-5 6.2-5s5.5 1.8 6.2 5"/><circle cx="17" cy="8.5" r="2.4"/><path d="M15.6 14.2c2.2.3 4 1.9 4.6 4.8"/></svg>
         Members
-      </a>
-      <a class="nav-item" href="#" data-nav="settings">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.7 7.7 0 0 0 0-3l2-1.5-2-3.4-2.3.9a7.7 7.7 0 0 0-2.6-1.5L14 2.5h-4l-.5 2.5a7.7 7.7 0 0 0-2.6 1.5l-2.3-.9-2 3.4 2 1.5a7.7 7.7 0 0 0 0 3l-2 1.5 2 3.4 2.3-.9c.8.7 1.6 1.2 2.6 1.5l.5 2.5h4l.5-2.5a7.7 7.7 0 0 0 2.6-1.5l2.3.9 2-3.4-2-1.5Z"/></svg>
-        Settings
       </a>
     </nav>
 
@@ -67,12 +59,12 @@
       <div class="topbar-left">
         <svg class="icon spark" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></svg>
         <div>
-          <h1>Welcome back, Charlie</h1>
-          <p>Here's your team availability overview.</p>
+          <h1 id="topbarTitle">Welcome back, Charlie</h1>
+          <p id="topbarSubtitle">Here's your team availability overview.</p>
         </div>
       </div>
       <div class="topbar-right">
-        <div class="week-picker">
+        <div class="week-picker" id="weekPicker">
           <button class="icon-btn" id="prevWeek" title="Previous week" aria-label="Previous week">
             <svg class="icon" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg>
           </button>
@@ -91,95 +83,190 @@
       </div>
     </header>
 
-    <div class="grid">
-      <!-- Left column -->
-      <div class="col-left">
-        <section class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <svg class="icon accent" viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M11 20V4"/><path d="M18 20v-7"/></svg>
-              <div>
-                <h2>Weekly Poll Results</h2>
-                <p>Average availability score out of 5 for each person</p>
+    <!-- Overview -->
+    <div class="view active" data-view="overview" id="view-overview">
+      <div class="grid">
+        <!-- Left column -->
+        <div class="col-left">
+          <section class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg class="icon accent" viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M11 20V4"/><path d="M18 20v-7"/></svg>
+                <div>
+                  <h2>Weekly Poll Results</h2>
+                  <p>Average availability score out of 5 for each person</p>
+                </div>
+              </div>
+              <div class="legend">
+                <span class="legend-label">1 = Very Busy</span>
+                <span class="legend-swatch score-1"></span>
+                <span class="legend-swatch score-2"></span>
+                <span class="legend-swatch score-3"></span>
+                <span class="legend-swatch score-4"></span>
+                <span class="legend-label">5 = Very Free</span>
               </div>
             </div>
-            <div class="legend">
-              <span class="legend-label">1 = Very Busy</span>
-              <span class="legend-swatch score-1"></span>
-              <span class="legend-swatch score-2"></span>
-              <span class="legend-swatch score-3"></span>
-              <span class="legend-swatch score-4"></span>
-              <span class="legend-label">5 = Very Free</span>
+
+            <div class="table-wrap">
+              <table class="poll-table" id="pollTable">
+                <thead>
+                  <tr id="pollTableHead"></tr>
+                </thead>
+                <tbody id="pollTableBody"></tbody>
+              </table>
             </div>
-          </div>
+            <p class="table-note">
+              <svg class="icon tiny" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 12h1v5h1"/></svg>
+              Scores update when members submit their poll
+            </p>
+          </section>
 
-          <div class="table-wrap">
-            <table class="poll-table" id="pollTable">
-              <thead>
-                <tr id="pollTableHead"></tr>
-              </thead>
-              <tbody id="pollTableBody"></tbody>
-            </table>
-          </div>
-          <p class="table-note">
-            <svg class="icon tiny" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 12h1v5h1"/></svg>
-            Scores update when members submit their poll
-          </p>
-        </section>
+          <section class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg class="icon accent" viewBox="0 0 24 24"><path d="M4 19V13"/><path d="M11 19V5"/><path d="M18 19v-8"/><path d="M2 19h20"/></svg>
+                <div>
+                  <h2>Busiest Team Members</h2>
+                  <p>Average availability score, lowest (busiest) first</p>
+                </div>
+              </div>
+            </div>
 
-        <section class="card">
-          <div class="card-header">
+            <div class="tabs" id="busyTabs">
+              <button class="tab" data-period="week">This Week</button>
+              <button class="tab active" data-period="month">This Month</button>
+              <button class="tab" data-period="year">This Year</button>
+            </div>
+
+            <ul class="busy-list" id="busyList"></ul>
+
+            <p class="table-note">
+              <svg class="icon tiny" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 12h1v5h1"/></svg>
+              Lower average = busier overall, based on submitted polls
+            </p>
+          </section>
+        </div>
+
+        <!-- Right column -->
+        <div class="col-right">
+          <section class="card">
             <div class="card-title">
-              <svg class="icon accent" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="m8 12 2.5 2.5L16 9"/></svg>
-              <h2>My Tasks</h2>
+              <svg class="icon accent" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 19.5c1-4 3.8-6 7.5-6s6.5 2 7.5 6"/></svg>
+              <div>
+                <h2>Your Availability</h2>
+                <p>Click a day to update your score</p>
+              </div>
             </div>
-            <button class="btn-primary small">
-              <svg class="icon small" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-              Add Task
+
+            <ul class="avail-list" id="availList"></ul>
+
+            <div class="avail-average">
+              Weekly average: <strong id="availAverage">2.4 (Busy)</strong>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg class="icon accent" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                <div>
+                  <h2>Awaiting Responses</h2>
+                  <p id="awaitingSubtitle">Haven't submitted this week's poll yet</p>
+                </div>
+              </div>
+            </div>
+            <ul class="awaiting-list" id="awaitingList"></ul>
+          </section>
+
+          <section class="card">
+            <div class="card-title">
+              <svg class="icon accent" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>
+              <h2>Upcoming Weeks</h2>
+            </div>
+            <ul class="upcoming-list" id="upcomingList"></ul>
+            <button class="btn-secondary" id="viewCalendarBtn">
+              <svg class="icon small" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>
+              View Calendar
             </button>
-          </div>
-
-          <div class="tabs" id="taskTabs">
-            <button class="tab active" data-filter="All">All</button>
-            <button class="tab" data-filter="To Do">To Do</button>
-            <button class="tab" data-filter="In Progress">In Progress</button>
-            <button class="tab" data-filter="Done">Done</button>
-          </div>
-
-          <ul class="task-list" id="taskList"></ul>
-        </section>
+          </section>
+        </div>
       </div>
+    </div>
 
-      <!-- Right column -->
-      <div class="col-right">
-        <section class="card">
+    <!-- Polls -->
+    <div class="view" data-view="polls" id="view-polls">
+      <section class="card">
+        <div class="card-header">
           <div class="card-title">
-            <svg class="icon accent" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 19.5c1-4 3.8-6 7.5-6s6.5 2 7.5 6"/></svg>
+            <svg class="icon accent" viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M11 20V4"/><path d="M18 20v-7"/></svg>
             <div>
-              <h2>Your Availability</h2>
-              <p>Click a day to update your score</p>
+              <h2>All Polls</h2>
+              <p>Every weekly poll — past, current and upcoming</p>
             </div>
           </div>
+        </div>
+        <ul class="polls-list" id="pollsList"></ul>
+      </section>
+    </div>
 
-          <ul class="avail-list" id="availList"></ul>
-
-          <div class="avail-average">
-            Weekly average: <strong id="availAverage">2.4 (Busy)</strong>
-          </div>
-        </section>
-
-        <section class="card">
+    <!-- Calendar -->
+    <div class="view" data-view="calendar" id="view-calendar">
+      <section class="card">
+        <div class="card-header">
           <div class="card-title">
             <svg class="icon accent" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>
-            <h2>Upcoming Weeks</h2>
+            <div>
+              <h2>Calendar</h2>
+              <p>Poll weeks at a glance — click a highlighted day to view its results</p>
+            </div>
           </div>
-          <ul class="upcoming-list" id="upcomingList"></ul>
-          <button class="btn-secondary">
-            <svg class="icon small" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>
-            View Calendar
-          </button>
-        </section>
-      </div>
+          <div class="week-picker">
+            <button class="icon-btn" id="prevMonth" title="Previous month" aria-label="Previous month">
+              <svg class="icon" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg>
+            </button>
+            <span class="week-picker-label" id="calendarMonthLabel">May 2025</span>
+            <button class="icon-btn" id="nextMonth" title="Next month" aria-label="Next month">
+              <svg class="icon" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="calendar-legend">
+          <span><span class="legend-dot open"></span>Open</span>
+          <span><span class="legend-dot closed"></span>Closed</span>
+          <span><span class="legend-dot scheduled"></span>Scheduled</span>
+          <span><span class="legend-dot weekend"></span>Weekend (office closed)</span>
+        </div>
+        <div class="legend" style="margin-bottom:16px;">
+          <span class="legend-label">Number = team average that day: 1 = Very Busy</span>
+          <span class="legend-swatch score-1"></span>
+          <span class="legend-swatch score-2"></span>
+          <span class="legend-swatch score-3"></span>
+          <span class="legend-swatch score-4"></span>
+          <span class="legend-label">5 = Very Free</span>
+        </div>
+
+        <div class="calendar-weekdays">
+          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </section>
+    </div>
+
+    <!-- Members -->
+    <div class="view" data-view="members" id="view-members">
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="icon accent" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.8 19c.7-3.2 3.3-5 6.2-5s5.5 1.8 6.2 5"/><circle cx="17" cy="8.5" r="2.4"/><path d="M15.6 14.2c2.2.3 4 1.9 4.6 4.8"/></svg>
+            <div>
+              <h2>Team Members</h2>
+              <p>Everyone included in the weekly poll</p>
+            </div>
+          </div>
+        </div>
+        <div class="members-grid" id="membersGrid"></div>
+      </section>
     </div>
   </main>
 </div>

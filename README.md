@@ -1,8 +1,8 @@
 # Kindleworth Dashboard
 
 A team availability dashboard: a weekly poll grid, an editable "your
-availability" panel, a task list, and upcoming weeks — styled after the
-Kindleworth app mockup.
+availability" panel, a busiest-team-members ranking (week/month/year), and
+upcoming weeks — styled after the Kindleworth app mockup.
 
 This is currently a **static front end** (no server, no database). It's
 built so that plugging it into a real Twilio WhatsApp poll backend later
@@ -40,8 +40,18 @@ what a backend fed by Twilio WhatsApp responses would eventually return:
 
 - `members` — the people being polled, including a `phone` field (the
   WhatsApp number a real response would come from)
-- `weeks[].responses` — `{ memberId: [score, score, ...] }` per day, `1–5`
-- `tasks`, `upcomingWeeks` — unrelated to Twilio, just UI content
+- `weeks[].responses` — `{ memberId: [score, score, ...] }` per day, `1–5`.
+  **Weekdays only (Mon–Fri, 5 values)** — the office is treated as closed on
+  weekends, so `weekStart`/`weekEnd` run Monday–Friday and there's no
+  Saturday/Sunday polling. The calendar view marks Sat/Sun as closed for any
+  month, independent of this data, so no extra work is needed there when
+  adding future weeks — just keep new `weeks[]`/`upcomingWeeks[]` entries
+  Mon–Fri too.
+- `busyness` — `{ week|month|year: { memberId: averageScore } }`, the
+  precomputed averages behind the "Busiest Team Members" panel. Currently
+  hand-set sample numbers; once real polls exist, this should be a rolling
+  average computed from stored responses instead of a static block.
+- `upcomingWeeks` — unrelated to Twilio, just UI content
 
 `script.js`'s `loadData()` currently does `fetch("data/poll-results.json")`.
 Swapping that URL for a real endpoint (e.g. `/api/poll-results`) that
@@ -71,6 +81,11 @@ Not built yet — this is the intended next step:
 6. **New Poll button**: currently a placeholder toast in
    [script.js](script.js) — wire it to trigger step 2 (send that week's
    WhatsApp poll to all members) once delivery exists.
+7. **Reminders**: "Awaiting Responses" (Overview) and "Remind" per member are
+   also placeholder toasts. A member counts as awaiting if they have no entry
+   at all in `weeks[activeWeekIndex].responses` — see `getAwaitingMembers()`
+   in [script.js](script.js). Wire "Remind" to send that one member a
+   follow-up WhatsApp message via Twilio.
 
 ## Notes
 
